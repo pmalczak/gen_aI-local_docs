@@ -49,8 +49,9 @@ def chunk_text(text, chunk_size=500, overlap=50):
     print(f"Created {len(chunks)} chunks")
     return chunks
 
+
 # Indexing function
-def index_documents(directory):
+def index_documents(directory, metadata_file):
     print(f"Indexing documents in directory: {directory}")
     global metadata
     documents = []
@@ -85,10 +86,11 @@ def index_documents(directory):
     # Save index and metadata
     print("Saving FAISS index and metadata")
     faiss.write_index(index, "document_index.faiss")
-    with open("metadata.json", "w") as f:
+    with open(metadata_file, "w") as f:
         json.dump(metadata, f)
     
     print(f"Indexed {len(documents)} document chunks.")
+
 
 # Function to read document chunk
 def read_document_chunk(file_path, chunk_id):
@@ -98,12 +100,13 @@ def read_document_chunk(file_path, chunk_id):
         content = read_pdf(file_path)
     elif file_path.endswith('.docx'):
         content = read_docx(file_path)
-    elif file.endswith('.txt'):
+    elif file_path.endswith('.txt'):
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
     
     chunks = chunk_text(content)
     return chunks[chunk_id] if chunk_id < len(chunks) else ""
+
 
 # Search function
 def semantic_search(query, k=10):
@@ -205,7 +208,7 @@ def main():
     if len(metadata) == 0:
         print("Loading FAISS index and metadata")
         index = faiss.read_index("document_index.faiss")
-        with open("metadata.json", "r") as f:
+        with open("../metadata.json", "r") as f:
             metadata = json.load(f)
         print(f"Loaded index with {index.ntotal} vectors and {len(metadata)} metadata entries")
     

@@ -48,7 +48,7 @@ def chunk_text(text, chunk_size=500, overlap=50):
     return chunks
 
 # Indexing function
-def index_documents(directory):
+def index_documents(directory, metadata_file):
     print(f"Indexing documents in directory: {directory}")
     global metadata
     documents = []
@@ -83,10 +83,11 @@ def index_documents(directory):
     # Save index and metadata
     print("Saving FAISS index and metadata")
     faiss.write_index(index, "document_index.faiss")
-    with open("metadata.json", "w") as f:
+    with open(metadata_file, "w") as f:
         json.dump(metadata, f)
     
     print(f"Indexed {len(documents)} document chunks.")
+
 
 # Function to read document chunk
 def read_document_chunk(file_path, chunk_id):
@@ -199,7 +200,7 @@ def main():
         if st.button("🚀 Index Documents"):
             with st.spinner("Indexing documents... This may take a while."):
                 print(f"Indexing documents in {documents_path}")
-                index_documents(documents_path)
+                index_documents(documents_path, metadata_file)
             st.success("✅ Indexing complete!")
             st.experimental_rerun()  # Rerun the app after indexing
 
@@ -208,7 +209,7 @@ def main():
     if len(metadata) == 0:
         print("Loading FAISS index and metadata")
         index = faiss.read_index("document_index.faiss")
-        with open("metadata.json", "r") as f:
+        with open("../metadata.json", "r") as f:
             metadata = json.load(f)
         print(f"Loaded index with {index.ntotal} vectors and {len(metadata)} metadata entries")
     
